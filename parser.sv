@@ -150,7 +150,7 @@ module parser #(
                 msg_len_nxt             = in_arr[msg_len_index +: 2];
                 msg_burst_len_nxt       = msg_len_index+ MSG_LENGTH_LEN + in_arr[msg_len_index +:2] >> $clog2(IP_DATA_WIDTH/8); //integere remonder
                 msg_len_index_nxt       = msg_len_index+ MSG_LENGTH_LEN + in_arr[msg_len_index +:2] - (msg_burst_len_nxt << $clog2(IP_DATA_WIDTH/8));  //interger modulo
-                next                    = MSG_OUT;
+                next                    = MSG_START;
                 out_valid_nxt           = 1'b1;
              end
                
@@ -222,98 +222,98 @@ module parser #(
          end
       end // end case item
 
-      MSG_OUT:
-      begin
-         if (in_valid) begin
-           if(count_msg_burst_len == msg_burst_len && msg_burst_len != '0) begin
+      //MSG_OUT:
+      //begin
+      //   if (in_valid) begin
+      //     if(count_msg_burst_len == msg_burst_len && msg_burst_len != '0) begin
 
-            if (msg_len_index == 7) begin
-               count_msg_burst_len_nxt = 3'b000;
-               msg_len_nxt[1]          = in_arr[msg_len_index];
-               msg_len_index_nxt       = '0;
-               msg_burst_len_nxt       = '0;
-               msg_len_index_nxt       = '0;
-               next                    = MSG_WAIT;
-               out_valid_nxt           = 1'b1;
-            end
-            else begin
-               count_msg_burst_len_nxt = 3'b001;
-               msg_len_nxt             = in_arr[msg_len_index +: 2];
-               msg_burst_len_nxt       = msg_len_index+ MSG_LENGTH_LEN + in_arr[msg_len_index +:2] >> $clog2(IP_DATA_WIDTH/8); //integere remonder
-               msg_len_index_nxt       = msg_len_index+ MSG_LENGTH_LEN + in_arr[msg_len_index +:2] - (msg_burst_len_nxt << $clog2(IP_DATA_WIDTH/8));  //interger modulo
-               next                    = MSG_START;
-               out_valid_nxt           = 1'b1;
-            end
+      //      if (msg_len_index == 7) begin
+      //         count_msg_burst_len_nxt = 3'b000;
+      //         msg_len_nxt[1]          = in_arr[msg_len_index];
+      //         msg_len_index_nxt       = '0;
+      //         msg_burst_len_nxt       = '0;
+      //         msg_len_index_nxt       = '0;
+      //         next                    = MSG_WAIT;
+      //         out_valid_nxt           = 1'b1;
+      //      end
+      //      else begin
+      //         count_msg_burst_len_nxt = 3'b001;
+      //         msg_len_nxt             = in_arr[msg_len_index +: 2];
+      //         msg_burst_len_nxt       = msg_len_index+ MSG_LENGTH_LEN + in_arr[msg_len_index +:2] >> $clog2(IP_DATA_WIDTH/8); //integere remonder
+      //         msg_len_index_nxt       = msg_len_index+ MSG_LENGTH_LEN + in_arr[msg_len_index +:2] - (msg_burst_len_nxt << $clog2(IP_DATA_WIDTH/8));  //interger modulo
+      //         next                    = MSG_START;
+      //         out_valid_nxt           = 1'b1;
+      //      end
 
-             if(temp_valid == 1'b0) begin
-               for(int i= 0; i<= msg_len_index-1; ++i) begin
-                 op_data_arr_nxt[i+num_byte_msg]    = in_arr[i];
-                 out_bytemask_nxt[i+num_byte_msg]   = 1'b1;
-               end
-               for(int i = num_byte_msg+msg_len_index;i <= OP_DATA_WIDTH/8-1; ++i) begin
-                 op_data_arr_nxt[i]    = '0;
-                 out_bytemask_nxt[i]   = 1'b0;
-               end
-             end
-             else begin
-               for(int i= 0; i<= temp_num_byte; ++i) begin
-                 op_data_arr_nxt[i]    = temp_arr[i];
-                 out_bytemask_nxt[i]   = 1'b1;
-               end
-               for(int i= temp_num_byte; i<= temp_num_byte+msg_len_index-1; ++i) begin
-                 op_data_arr_nxt[i]    = in_arr[i-temp_num_byte];
-                 out_bytemask_nxt[i]   = 1'b1;
-               end
-               for(int i = temp_num_byte+msg_len_index;i <= OP_DATA_WIDTH/8-1; ++i) begin
-                 op_data_arr_nxt[i]    = '0;
-                 out_bytemask_nxt[i]   = 1'b0;
-               end
-             end
+      //       if(temp_valid == 1'b0) begin
+      //         for(int i= 0; i<= msg_len_index-1; ++i) begin
+      //           op_data_arr_nxt[i+num_byte_msg]    = in_arr[i];
+      //           out_bytemask_nxt[i+num_byte_msg]   = 1'b1;
+      //         end
+      //         for(int i = num_byte_msg+msg_len_index;i <= OP_DATA_WIDTH/8-1; ++i) begin
+      //           op_data_arr_nxt[i]    = '0;
+      //           out_bytemask_nxt[i]   = 1'b0;
+      //         end
+      //       end
+      //       else begin
+      //         for(int i= 0; i<= temp_num_byte; ++i) begin
+      //           op_data_arr_nxt[i]    = temp_arr[i];
+      //           out_bytemask_nxt[i]   = 1'b1;
+      //         end
+      //         for(int i= temp_num_byte; i<= temp_num_byte+msg_len_index-1; ++i) begin
+      //           op_data_arr_nxt[i]    = in_arr[i-temp_num_byte];
+      //           out_bytemask_nxt[i]   = 1'b1;
+      //         end
+      //         for(int i = temp_num_byte+msg_len_index;i <= OP_DATA_WIDTH/8-1; ++i) begin
+      //           op_data_arr_nxt[i]    = '0;
+      //           out_bytemask_nxt[i]   = 1'b0;
+      //         end
+      //       end
 
-             if (msg_len_index <= 6) begin
-               for(int i= msg_len_index; i<= IP_DATA_WIDTH/8-1; ++i)
-                 temp_arr_nxt[i-msg_len_index-2]    = in_arr[i];
-               temp_valid_nxt          = 1'b1;
-               temp_num_byte_nxt       = IP_DATA_WIDTH/8 - (msg_len_index+2);
-               num_byte_msg_nxt        = temp_num_byte_nxt;
-             end
-             else begin
-               temp_valid_nxt          = 1'b0;
-               temp_num_byte_nxt       = '0;
-               num_byte_msg_nxt        = '0;
-             end
+      //       if (msg_len_index <= 6) begin
+      //         for(int i= msg_len_index; i<= IP_DATA_WIDTH/8-1; ++i)
+      //           temp_arr_nxt[i-msg_len_index-2]    = in_arr[i];
+      //         temp_valid_nxt          = 1'b1;
+      //         temp_num_byte_nxt       = IP_DATA_WIDTH/8 - (msg_len_index+2);
+      //         num_byte_msg_nxt        = temp_num_byte_nxt;
+      //       end
+      //       else begin
+      //         temp_valid_nxt          = 1'b0;
+      //         temp_num_byte_nxt       = '0;
+      //         num_byte_msg_nxt        = '0;
+      //       end
 
-           end
-           else begin
-             out_bytemask_nxt        = '0;
-             out_valid_nxt           = 1'b0;
-             count_msg_burst_len_nxt = count_msg_burst_len + 1;
-             num_byte_msg_nxt        = num_byte_msg + IP_DATA_WIDTH/8;
-             temp_valid_nxt          = 1'b0;
-             temp_num_byte_nxt       = '0;
-             if(temp_valid == 1'b0) begin
-               for(int i= 0; i<= IP_DATA_WIDTH/8-1; ++i) begin
-                 op_data_arr_nxt[i+num_byte_msg]    = in_arr[i];
-                 out_bytemask_nxt[i+num_byte_msg]   = 1'b1;
-               end
-             end
-             else begin
-               for(int i= 0; i<= temp_num_byte; ++i) begin
-                 op_data_arr_nxt[i]    = temp_arr[i];
-                 out_bytemask_nxt[i]   = 1'b1;
-               end
-               for(int i= temp_num_byte; i<= temp_num_byte+IP_DATA_WIDTH/8-1; ++i) begin
-                 op_data_arr_nxt[i]    = in_arr[i-temp_num_byte];
-                 out_bytemask_nxt[i]   = 1'b1;
-               end
-             end
-           end
-         end
-         if (in_endofpayload == 1'b1) begin
-           next = IDLE;
-         end
+      //     end
+      //     else begin
+      //       out_bytemask_nxt        = '0;
+      //       out_valid_nxt           = 1'b0;
+      //       count_msg_burst_len_nxt = count_msg_burst_len + 1;
+      //       num_byte_msg_nxt        = num_byte_msg + IP_DATA_WIDTH/8;
+      //       temp_valid_nxt          = 1'b0;
+      //       temp_num_byte_nxt       = '0;
+      //       if(temp_valid == 1'b0) begin
+      //         for(int i= 0; i<= IP_DATA_WIDTH/8-1; ++i) begin
+      //           op_data_arr_nxt[i+num_byte_msg]    = in_arr[i];
+      //           out_bytemask_nxt[i+num_byte_msg]   = 1'b1;
+      //         end
+      //       end
+      //       else begin
+      //         for(int i= 0; i<= temp_num_byte; ++i) begin
+      //           op_data_arr_nxt[i]    = temp_arr[i];
+      //           out_bytemask_nxt[i]   = 1'b1;
+      //         end
+      //         for(int i= temp_num_byte; i<= temp_num_byte+IP_DATA_WIDTH/8-1; ++i) begin
+      //           op_data_arr_nxt[i]    = in_arr[i-temp_num_byte];
+      //           out_bytemask_nxt[i]   = 1'b1;
+      //         end
+      //       end
+      //     end
+      //   end
+      //   if (in_endofpayload == 1'b1) begin
+      //     next = IDLE;
+      //   end
 
-      end //end case item 
+      //end //end case item 
 
       MSG_WAIT:
       begin
